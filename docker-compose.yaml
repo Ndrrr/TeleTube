@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  teletube_front:
+    container_name: teletube_front
+    image: ndrrr/teletube_front
+    ports:
+      - 3000:3000
+    depends_on:
+      - teletube_back
+
+  teletube_back:
+    container_name: teletube_back
+    hostname: teletube_back
+    image: ndrrr/teletube_back
+    ports:
+      - "5000:5000"
+    depends_on:
+      - teletube_db
+
+  teletube_db:
+    container_name: teletube_db
+    hostname: teletube_db
+    image: mysql:8.0.28
+    restart: always
+    environment:
+      MYSQL_DATABASE: teletube_db
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - .dbdata:/var/lib/mysql
+    ports:
+      - 33866:3306
