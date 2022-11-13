@@ -52,13 +52,14 @@ class ForgotPassword extends Component {
                                     onChange={this.onChange}
                                 />
                             </div>
+                            <p className={"text-primary"}>{this.state.message}</p>
+
                             <button
                                 type="submit"
-                                className="btn btn-lg btn-primary btn-block"
+                                className="btn btn-lg btn-primary btn-block mt-3"
                             >
                                 Send Password Reset Link
                             </button>
-                            <p className={"text-primary mt-3"}>{this.state.message}</p>
                         </form>
                     </div>
                 </div>

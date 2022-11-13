@@ -91,6 +91,39 @@ users.get('/profile', (req, res) => {
     })
 })
 
+users.post('profile/update', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        where: {
+        id: decoded.id
+        }
+    })
+        .then(user => {
+        if (user) {
+            let password = req.body.password
+            bcrypt.hash(password, 10, (err, hash) => {
+                user.update({
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    password: hash
+                })
+                .then(() => {
+                    res.json({status: user.email + 'Updated!'})
+                })
+                .catch(err => {
+                    res.json({msg: err})
+                })
+            })
+        } else {
+            res.send('User does not exist')
+        }
+        })
+        .catch(err => {
+        res.send({msg: err})
+        })
+})
+
 users.post('/forgot-password', (req, res) => {
   User.findOne({
     where: {
@@ -124,6 +157,8 @@ users.post(`/reset-password/:token`, (req, res) => {
             token: token
         }
     }).then(token => {
+        if (token) {
+            console.log("token: " + token)
             User.findOne({
                 where: {
                     email: req.body.email
@@ -132,6 +167,8 @@ users.post(`/reset-password/:token`, (req, res) => {
                 if (user) {
                     bcrypt.hash(password, 10, (err, hash) => {
                         user.password = hash
+                        console.log("token-> ")
+                        console.log(token)
                         user.save().then(() => {
                             Token.destroy({
                                 where: {
@@ -139,13 +176,18 @@ users.post(`/reset-password/:token`, (req, res) => {
                                 }
                             }).then(() => {
                                 res.status(200).json({msg: 'Password reset successfully'})
+                            }).catch(err => {
+                                res.status(200).json({msg: "Token expired, please try again"})
                             })
                         })
                     })
                 }
             })
+        } else {
+            res.status(200).json({msg: "Token expired, please try again"})
+        }
     }).catch(err => {
-        res.status(400).json({msg: 'Error resetting password'})
+        res.status(200).json({msg: 'Error resetting password, please try again'})
     })
 })
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
+import { withRouter} from "react-router-dom";
 import { register } from './UserFunctions'
-
+import queryString from 'query-string'
 
 let firstNameMsg = '';
 let lastNameMsg = '';
@@ -8,6 +9,7 @@ let emailMsg = '';
 let passwordMsg = '';
 let password2Msg = '';
 let validFrom = [false, false, false, false, false];
+
 class Register extends Component {
   constructor() {
     super()
@@ -103,9 +105,21 @@ class Register extends Component {
             password_confirm: this.state.password_confirm
         }
         register(newUser).then(res => {
+          console.log(res)
+          if(res.data.error === 'User already exists'){
+            this.props.history.push('/register?error=User already exists');
+          } else {
             this.props.history.push(`/login`)
+          }
         })
     }
+  }
+
+  componentDidMount() {
+    let params = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true });
+    console.log(params)
+    emailMsg = params.error;
+    this.setState({['errors'] : params.error});
   }
 
   render() {
@@ -192,4 +206,4 @@ class Register extends Component {
   }
 }
 
-export default Register
+export default withRouter(Register)

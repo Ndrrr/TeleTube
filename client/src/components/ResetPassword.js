@@ -13,6 +13,7 @@ class ResetPassword extends Component {
             password: '',
             password_confirm: '',
             message: '',
+            messageColor: '',
             errors: {}
         }
 
@@ -56,10 +57,14 @@ class ResetPassword extends Component {
         }
 
         resetPassword(user).then(res => {
-            if (res) {
-                this.state.message = res.msg;
-                this.props.history.push(`/reset-password/${token}`)
+            if (res.msg === 'Password reset successfully') {
+                this.state.messageColor = 'text-success';
+            } else {
+                this.state.messageColor = 'text-danger';
             }
+            this.state.message = res.msg;
+            this.props.history.push(`/reset-password/${token}`)
+            this.setState({message: this.state.message, password: '', password_confirm: ''})
         })
     }
 
@@ -94,13 +99,13 @@ class ResetPassword extends Component {
                                 />
                                 <p className={"text-danger"}>{password2Msg}</p>
                             </div>
+                            <p className={this.state.messageColor+" mt-3"}>{this.state.message}</p>
                             <button
                                 type="submit"
                                 className="btn btn-lg btn-primary btn-block"
                             >
                                 Reset
                             </button>
-                            <p className={"text-success mt-3"}>{this.state.message}</p>
                         </form>
                     </div>
                 </div>
