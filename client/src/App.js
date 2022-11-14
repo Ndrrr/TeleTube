@@ -8,6 +8,7 @@ import Register from './components/Register'
 import Profile from './components/Profile'
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
+import Home from "./components/Home";
 
 class App extends Component {
   render() {
@@ -22,6 +23,7 @@ class App extends Component {
             <Route exact path="/profile" component={Profile} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/reset-password/:token" component={ResetPassword} />
+            <Route exact path="/home" component={Home} />
           </div>
         </div>
       </Router>

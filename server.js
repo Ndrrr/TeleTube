@@ -16,8 +16,10 @@ app.use(
 )
 
 var Users = require('./routes/Users')
+var Rooms = require('./routes/Rooms')
 
 app.use('/users', Users)
+app.use('/rooms', Rooms)
 
 cron.schedule('*/1 * * * *', () => {
     removeExpiredTokens()
