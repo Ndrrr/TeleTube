@@ -55,3 +55,35 @@ export const resetPassword = user => {
         console.log(err)
         })
 }
+
+export const getProfile = token => {
+    return axios
+        .get('users/profile', {
+        headers: { Authorization: `${token}` }
+        })
+        .then(response => {
+        console.log(response)
+        return response.data
+        })
+        .catch(err => {
+        console.log(err)
+        })
+}
+
+export const updateProfile = (token, user) => {
+    return axios
+        .post('users/profile/update', {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        old_password: user.old_password,
+        new_password: user.new_password
+        }, {headers: { Authorization: `${token}` }})
+        .then(response => {
+        console.log(response)
+        return response.data
+        })
+        .catch(err => {
+        console.log(err)
+        })
+}

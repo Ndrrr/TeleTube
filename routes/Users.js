@@ -3,7 +3,6 @@ const users = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-
 const User = require('../models/User')
 const Token = require('../models/Token')
 
@@ -81,7 +80,7 @@ users.get('/profile', (req, res) => {
   })
     .then(user => {
       if (user) {
-        res.json(user)
+          res.json(user)
       } else {
         res.send('User does not exist')
       }
@@ -91,37 +90,36 @@ users.get('/profile', (req, res) => {
     })
 })
 
-users.post('profile/update', (req, res) => {
+users.post('/profile/update', (req, res) => {
     var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
+    let old_password = req.body.old_password
+    let new_password = req.body.new_password
     User.findOne({
         where: {
-        id: decoded.id
+            id: decoded.id
         }
-    })
-        .then(user => {
+    }).then(user => {
         if (user) {
-            let password = req.body.password
-            bcrypt.hash(password, 10, (err, hash) => {
-                user.update({
-                    first_name: req.body.first_name,
-                    last_name: req.body.last_name,
-                    password: hash
+            if (bcrypt.compareSync(old_password, user.password)) {
+                bcrypt.hash(new_password, 10, (err, hash) => {
+                    user.first_name = req.body.first_name
+                    user.last_name = req.body.last_name
+                    if(new_password != null && new_password !== "") {
+                        user.password = hash
+                    }
+                    user.save()
+                    res.json({msg: 'Updated'})
                 })
-                .then(() => {
-                    res.json({status: user.email + 'Updated!'})
-                })
-                .catch(err => {
-                    res.json({msg: err})
-                })
-            })
+            } else {
+                res.json({msg: 'Old password is incorrect'})
+            }
         } else {
-            res.send('User does not exist')
+            res.json({msg: 'User does not exist'})
         }
-        })
-        .catch(err => {
-        res.send({msg: err})
-        })
+    }).catch(err => {
+        res.send('error: ' + err)
+    })
 })
 
 users.post('/forgot-password', (req, res) => {
