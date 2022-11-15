@@ -25,9 +25,11 @@
     "mysql2": "^2.3.3",
     "node-cron": "^3.0.2",
     "nodemailer": "^6.8.0",
-    "sequelize": "^4.38.0"
+    "sequelize": "^4.38.0",
+    "socket.io": "^4.5.3",
+    "ytdl": "^1.4.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.3"
+    "nodemon": "^1.19.4"
   }
 }

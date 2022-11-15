@@ -36,6 +36,9 @@ class Landing extends Component {
             Logout
           </a>
         </li>
+          <li className="nav-item">
+              <a href="/player" className={"nav-link"}>Player</a>
+          </li>
       </ul>
     )
 
