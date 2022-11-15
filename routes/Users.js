@@ -3,7 +3,6 @@ const users = express.Router()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-
 const User = require('../models/User')
 const Token = require('../models/Token')
 
@@ -81,13 +80,45 @@ users.get('/profile', (req, res) => {
   })
     .then(user => {
       if (user) {
-        res.json(user)
+          res.json(user)
       } else {
         res.send('User does not exist')
       }
     })
     .catch(err => {
       res.send('error: ' + err)
+    })
+})
+
+users.post('/profile/update', (req, res) => {
+    var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    let old_password = req.body.old_password
+    let new_password = req.body.new_password
+    User.findOne({
+        where: {
+            id: decoded.id
+        }
+    }).then(user => {
+        if (user) {
+            if (bcrypt.compareSync(old_password, user.password)) {
+                bcrypt.hash(new_password, 10, (err, hash) => {
+                    user.first_name = req.body.first_name
+                    user.last_name = req.body.last_name
+                    if(new_password != null && new_password !== "") {
+                        user.password = hash
+                    }
+                    user.save()
+                    res.json({msg: 'Updated'})
+                })
+            } else {
+                res.json({msg: 'Old password is incorrect'})
+            }
+        } else {
+            res.json({msg: 'User does not exist'})
+        }
+    }).catch(err => {
+        res.send('error: ' + err)
     })
 })
 
@@ -124,6 +155,8 @@ users.post(`/reset-password/:token`, (req, res) => {
             token: token
         }
     }).then(token => {
+        if (token) {
+            console.log("token: " + token)
             User.findOne({
                 where: {
                     email: req.body.email
@@ -132,6 +165,8 @@ users.post(`/reset-password/:token`, (req, res) => {
                 if (user) {
                     bcrypt.hash(password, 10, (err, hash) => {
                         user.password = hash
+                        console.log("token-> ")
+                        console.log(token)
                         user.save().then(() => {
                             Token.destroy({
                                 where: {
@@ -139,13 +174,18 @@ users.post(`/reset-password/:token`, (req, res) => {
                                 }
                             }).then(() => {
                                 res.status(200).json({msg: 'Password reset successfully'})
+                            }).catch(err => {
+                                res.status(200).json({msg: "Token expired, please try again"})
                             })
                         })
                     })
                 }
             })
+        } else {
+            res.status(200).json({msg: "Token expired, please try again"})
+        }
     }).catch(err => {
-        res.status(400).json({msg: 'Error resetting password'})
+        res.status(200).json({msg: 'Error resetting password, please try again'})
     })
 })
 

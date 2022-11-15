@@ -61,9 +61,10 @@ class Login extends Component {
                   onChange={this.onChange}
                 />
               </div>
+              <a href={'/forgot-password'}>Forgot password?</a>
               <button
                 type="submit"
-                className="btn btn-lg btn-primary btn-block"
+                className="btn btn-lg btn-primary btn-block mt-2"
               >
                 Sign in
               </button>
