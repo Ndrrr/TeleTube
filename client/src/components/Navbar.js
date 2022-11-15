@@ -37,7 +37,7 @@ class Landing extends Component {
           </a>
         </li>
           <li className="nav-item">
-              <a href="/player" className={"nav-link"}>Player</a>
+              <Link to="/player" className={"nav-link"}>Player</Link>
           </li>
       </ul>
     )

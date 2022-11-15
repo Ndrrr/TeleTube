@@ -5,7 +5,6 @@ import ReactPlayer from 'react-player'
 
 const socket = io('');
 
-
 class Player extends Component {
     constructor(props) {
         super(props);
@@ -47,21 +46,17 @@ class Player extends Component {
             });
         });
         socket.on('play', (time) => {
-            this.setState({
-                playing : true
-            });
             this.videoPlayer.seekTo(time);
             this.setState({
-                lastChange : time
+                lastChange : (new Date()).getTime(),
+                playing : true
             });
         });
         socket.on('pause', (time) => {
-            this.setState({
-                playing : false
-            });
             this.videoPlayer.seekTo(time);
             this.setState({
-                lastChange : time
+                lastChange : (new Date()).getTime(),
+                playing : false
             });
         });
         socket.on('newPlayer', (player) => {
@@ -85,14 +80,20 @@ class Player extends Component {
     }
 
     onPlay(e) {
-        console.log(Math.abs(this.videoPlayer.getCurrentTime() - this.state.lastChange));
-        if(Math.abs(this.videoPlayer.getCurrentTime() - this.state.lastChange) > 0.5) {
+        this.setState({
+            playing : true
+        });
+        console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
+        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1) {
             socket.emit('play', this.videoPlayer.getCurrentTime());
         }
     }
     onPause(e) {
-        console.log(Math.abs(this.videoPlayer.getCurrentTime() - this.state.lastChange));
-        if(Math.abs(this.videoPlayer.getCurrentTime() - this.state.lastChange) > 0.5) {
+        this.setState({
+            playing : false
+        });
+        console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
+        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1) {
             socket.emit('pause', this.videoPlayer.getCurrentTime());
         }
     }
@@ -107,8 +108,6 @@ class Player extends Component {
         console.log(this.state.playing);
         // console.log('changed video ' + util.inspect(this.videoPlayer, false, null, true /* enable colors */));
     }
-
-
 
     render() {
         return (

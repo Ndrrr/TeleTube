@@ -15,10 +15,10 @@ var players = [];
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('newPlayer', (player) => {
+        socket.emit('newPlayer', players);
         players.push(player);
         console.log(player);
         socket.broadcast.emit('newPlayer', player);
-        socket.emit('players', players);
     });
 
     socket.on('disconnect', () => {
