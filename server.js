@@ -34,6 +34,9 @@ io.on('connection', (socket) => {
     socket.on('pause', (msg) => {
         socket.broadcast.emit('pause', msg);
     });
+    socket.on('msg', (msg) => {
+        io.emit('msg', msg);
+    });
 });
 
 app.use(bodyParser.json())

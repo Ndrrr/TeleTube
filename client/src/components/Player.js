@@ -15,16 +15,24 @@ class Player extends Component {
             playing : true,
             controller : '',
             players: [],
-            lastChange : -1
+            lastChange : -1,
+            msg: ''
         };
         this.changeVideo = this.changeVideo.bind(this);
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
+        this.sendMsg = this.sendMsg.bind(this);
         this.videoUrlRef = element => {
             this.videoUrl = element;
         };
         this.videoPlayerRef = element => {
             this.videoPlayer = element;
+        };
+        this.msgRef = element => {
+            this.msgComp = element;
+        }
+        this.chatRef = element => {
+            this.chat = element;
         };
 
     }
@@ -32,8 +40,9 @@ class Player extends Component {
     componentDidMount() {
         const token = localStorage.usertoken;
         const decoded = jwt_decode(token);
+        var tmpName = decoded.first_name + ' ' + decoded.last_name;
         this.setState({
-            name: decoded.first_name + ' ' + decoded.last_name,
+            name: tmpName,
             room: 'room1',
             controller: 'player',
             players: [decoded.first_name+' '+decoded.last_name]
@@ -76,6 +85,13 @@ class Player extends Component {
                 players: this.state.players.filter(p => p !== player)
             });
         });
+        socket.on('msg', (message) => {
+            console.log(message);
+            // this.setState({
+            //     msg : this.state.msg + message
+            // });
+            this.chat.innerHTML += message;
+        });
         socket.emit('newPlayer', decoded.first_name+' '+decoded.last_name);
     }
 
@@ -84,7 +100,7 @@ class Player extends Component {
             playing : true
         });
         console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
-        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1) {
+        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1000) {
             socket.emit('play', this.videoPlayer.getCurrentTime());
         }
     }
@@ -93,7 +109,7 @@ class Player extends Component {
             playing : false
         });
         console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
-        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1) {
+        if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1000) {
             socket.emit('pause', this.videoPlayer.getCurrentTime());
         }
     }
@@ -108,7 +124,11 @@ class Player extends Component {
         console.log(this.state.playing);
         // console.log('changed video ' + util.inspect(this.videoPlayer, false, null, true /* enable colors */));
     }
-
+    sendMsg(e) {
+        e.preventDefault();
+        socket.emit('msg', '<li className="list-group-item">'+ this.state.name+": " + this.msgComp.value + '</li>');
+        this.msgComp.value = '';
+    }
     render() {
         return (
             <div className="container">
@@ -144,16 +164,15 @@ class Player extends Component {
                                         <h4>Chat</h4>
                                         <div id="chat" className="card">
                                             <div className="card-body">
-                                                <ul className="list-group">
-                                                    <li className="list-group-item">Player 1: Hello</li>
-                                                    <li className="list-group-item">Player 2: Hi</li>
+                                                <ul className="list-group" id="messages" ref={this.chatRef}>
+
                                                 </ul>
                                             </div>
                                         </div>
                                         <div className="input-group">
-                                            <input type="text" className="form-control" placeholder="Message" />
+                                            <input type="text" className="form-control" placeholder="Message" ref={this.msgRef}/>
                                             <div className="input-group-append">
-                                                <button className="btn btn-dark" type="button">Send</button>
+                                                <button className="btn btn-dark" type="button" onClick={this.sendMsg}>Send</button>
                                             </div>
                                         </div>
                                     </div>
