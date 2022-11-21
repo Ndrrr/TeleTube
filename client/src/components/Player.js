@@ -1,8 +1,8 @@
-import React, { Component, } from 'react';
+import React, { Component } from 'react';
 import { io } from 'socket.io-client';
 import jwt_decode from 'jwt-decode';
 import ReactPlayer from 'react-player';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const socket = io('');
 

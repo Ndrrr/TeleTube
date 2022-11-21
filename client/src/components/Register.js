@@ -19,7 +19,8 @@ class Register extends Component {
       email: '',
       password: '',
       password_confirm: '',
-      errors: {}
+      errors: {},
+      refresh: 0
     }
 
     this.onNameChange = this.onNameChange.bind(this)
@@ -111,15 +112,20 @@ class Register extends Component {
           } else {
             this.props.history.push(`/login`)
           }
+          window.location.reload()
+          //this.setState({refresh: 1 - this.state.refresh});
         })
     }
   }
 
   componentDidMount() {
     let params = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true });
+    console.log("params: ")
     console.log(params)
-    emailMsg = params.error;
-    this.setState({['errors'] : params.error});
+    if(params.error !== undefined){
+      emailMsg = params.error;
+      this.setState({['errors']: params.error});
+    }
   }
 
   render() {

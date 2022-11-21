@@ -20,7 +20,10 @@ export const login = user => {
       password: user.password
     })
     .then(response => {
-      localStorage.setItem('usertoken', response.data)
+        // console.log(response);
+        if(response.data.error !== 'Invalid credentials'){
+            localStorage.setItem('usertoken', response.data.access_token)
+        }
       return response.data
     })
     .catch(err => {

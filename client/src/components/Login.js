@@ -26,9 +26,12 @@ class Login extends Component {
     }
 
     login(user).then(res => {
-      if (res) {
+      if (res.error !== 'Invalid credentials') {
         this.props.history.push(`/profile`)
+      } else {
+        this.setState({ error : res.error })
       }
+      console.log(this.state.error)
     })
   }
 
@@ -68,6 +71,7 @@ class Login extends Component {
               >
                 Sign in
               </button>
+              <p className={"text-danger mt-2"}>{this.state.error}</p>
             </form>
           </div>
         </div>
