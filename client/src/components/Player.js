@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, } from 'react';
 import { io } from 'socket.io-client';
 import jwt_decode from 'jwt-decode';
-import ReactPlayer from 'react-player'
+import ReactPlayer from 'react-player';
+import {Link} from 'react-router-dom'
 
 const socket = io('');
 
@@ -55,14 +56,14 @@ class Player extends Component {
             });
         });
         socket.on('play', (time) => {
-            this.videoPlayer.seekTo(time);
+            if(this.videoPlayer) this.videoPlayer.seekTo(time);
             this.setState({
                 lastChange : (new Date()).getTime(),
                 playing : true
             });
         });
         socket.on('pause', (time) => {
-            this.videoPlayer.seekTo(time);
+            if(this.videoPlayer) this.videoPlayer.seekTo(time);
             this.setState({
                 lastChange : (new Date()).getTime(),
                 playing : false
@@ -70,7 +71,12 @@ class Player extends Component {
         });
         socket.on('newPlayer', (player) => {
             // add if player is not present
-            if(this.state.players.indexOf(player) === -1) {
+            if(Array.isArray(player)) {
+                this.setState({
+                    players: player
+                });
+            }
+            else if(this.state.players.indexOf(player) === -1) {
                 this.setState({
                     players: [...this.state.players, player]
                 });
@@ -139,7 +145,7 @@ class Player extends Component {
                                 <div className="d-inline-block col-md-4"></div>
                                 <h3 className="text-center align-middle col-md-4  d-inline-block">Room: {this.state.room}</h3>
                                 <div className="d-inline-block col-md-4 align-right text-right">
-                                    <button className="btn btn-danger pull-right " type="button">Leave Room</button>
+                                    <Link to={'/'} className="btn btn-danger pull-right " type="button">Leave Room</Link>
                                 </div>
                                 <h4 className="text-center align-middle col-md-12 d-inline-block">Controller : {this.state.controller}</h4>
                             </div>

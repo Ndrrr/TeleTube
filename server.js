@@ -16,7 +16,9 @@ io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('newPlayer', (player) => {
         socket.emit('newPlayer', players);
-        players.push(player);
+        if(players.indexOf(player) === -1) {
+            players.push(player);
+        }
         console.log(player);
         socket.broadcast.emit('newPlayer', player);
     });
