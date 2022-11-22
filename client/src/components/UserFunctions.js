@@ -84,7 +84,7 @@ export const updateProfile = (token, user) => {
         }, {headers: { Authorization: `${token}` }})
         .then(response => {
         console.log(response)
-        return response.data
+        return response
         })
         .catch(err => {
         console.log(err)

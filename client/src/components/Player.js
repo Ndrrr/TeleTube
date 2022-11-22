@@ -40,7 +40,13 @@ class Player extends Component {
 
     componentDidMount() {
         const token = localStorage.usertoken;
-        const decoded = jwt_decode(token);
+        let decoded;
+        try {
+            decoded = jwt_decode(token);
+        } catch (e) {
+            this.props.history.push('/login');
+            return;
+        }
         var tmpName = decoded.first_name + ' ' + decoded.last_name;
         this.setState({
             name: tmpName,
