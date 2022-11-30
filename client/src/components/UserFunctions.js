@@ -20,7 +20,6 @@ export const login = user => {
       password: user.password
     })
     .then(response => {
-        // console.log(response);
         if(response.data.error !== 'Invalid credentials'){
             localStorage.setItem('usertoken', response.data.access_token)
         }
@@ -111,6 +110,20 @@ export const createRoom = (token, id, password) => {
         .post('rooms/create', {
         id: id,
         password: password
+        }, {headers: { Authorization: `${token}` }})
+        .then(response => {
+        console.log(response)
+        return response
+        })
+        .catch(err => {
+        console.log(err)
+        })
+}
+
+export const destroyRoom = (token, id) => {
+    return axios
+        .post('rooms/destroy', {
+        id: id
         }, {headers: { Authorization: `${token}` }})
         .then(response => {
         console.log(response)
