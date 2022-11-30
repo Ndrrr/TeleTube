@@ -11,6 +11,8 @@ const port = process.env.PORT || 5000
 const { Server } = require("socket.io");
 const io = new Server(server);
 
+const {destroyRoom} = require('./utils/RoomUtils')
+
 var map = new Map();
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -45,9 +47,9 @@ io.on('connection', (socket) => {
             io.to(value).emit('removePlayer', map.get(room).get(socket.id));
             var roomName = value;
             var roomSize = io.sockets.adapter.rooms.get(roomName).size;
-            if (roomSize === 0) {
+            if (roomSize === 1) {
                 map.delete(roomName);
-
+                destroyRoom(roomName);
             }
         });
     });

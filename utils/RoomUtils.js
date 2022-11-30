@@ -1,4 +1,4 @@
-import Room from "../client/src/components/Room";
+const Room = require('../models/Room')
 
 async function destroyRoom(room_id) {
     const room = await Room.findOne({
@@ -17,3 +17,5 @@ async function destroyRoom(room_id) {
     }
     return true;
 }
+
+module.exports = {destroyRoom}
