@@ -22,7 +22,7 @@ users.post('/register', (req, res) => {
     created_at: today
   }
   console.log(userData)
-  let user = User.findOne({
+    User.findOne({
     where: {
       email: req.body.email
     }
@@ -57,7 +57,7 @@ users.post('/login', (req, res) => {
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
-            expiresIn: 6400
+            expiresIn: 12800
           })
           res.json({access_token: token})
         } else {
@@ -134,11 +134,12 @@ users.post('/forgot-password', (req, res) => {
   }).then(user => {
     if (user) {
       let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
-        expiresIn: 1440
+        expiresIn: 6400
       })
       Token.create({
         user_id: user.id,
-        token: token
+        token: token,
+        expires_in: 6400
       })
       let emailText = "Dear " + user.first_name + ",\n\nPlease click on the following link to reset your password\n" + buildRecoverUrl(token)
                       + "\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n\n"

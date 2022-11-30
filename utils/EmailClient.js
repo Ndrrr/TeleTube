@@ -5,7 +5,7 @@ const sendEmail = async (email, subject, text) => {
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: process.env.EMAIL_PORT,
-            service: "Outlook365",
+            //service: "Outlook365",
             //secure: true,
             auth: {
                 user: process.env.EMAIL_USER,
@@ -28,7 +28,7 @@ const sendEmail = async (email, subject, text) => {
 };
 
 const buildRecoverUrl = (token) => {
-    return `${process.env.BASE_URL}/reset-password/${token}`;
+    return `http://${process.env.BASE_URL}/reset-password/${token}`;
 }
 
 module.exports = {sendEmail, buildRecoverUrl};
