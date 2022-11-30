@@ -120,20 +120,6 @@ export const createRoom = (token, id, password) => {
         })
 }
 
-export const destroyRoom = (token, id) => {
-    return axios
-        .post('rooms/destroy', {
-        id: id
-        }, {headers: { Authorization: `${token}` }})
-        .then(response => {
-        console.log(response)
-        return response
-        })
-        .catch(err => {
-        console.log(err)
-        })
-}
-
 export const checkExistingRoom = (token, id) => {
     return axios
         .post('rooms/exists', {

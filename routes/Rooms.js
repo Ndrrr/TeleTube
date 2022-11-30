@@ -91,37 +91,6 @@ rooms.post('/join', (req, res) => {
     })
 })
 
-rooms.post('/destroy', (req, res) => {
-    let decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
-
-    User.findOne({
-        where: {
-            id: decoded.id
-        }
-    }).then(user => {
-        Room.findOne({
-            where: {
-                id: req.body.id
-            }
-        }).then(room => {
-            if (room) {
-                if (bcrypt.compareSync(req.body.password, room.password)) {
-                    room.destroy()
-                    res.json({room_id: room.id})
-                } else {
-                    res.status(400).json({error: 'Room does not exist'})
-                }
-            } else {
-                res.status(400).json({error: 'Room does not exist'})
-            }
-        }).catch(err => {
-            res.status(400).json({error: err})
-        })
-    }).catch(err => {
-        res.status(400).json({error: 'not logged in'})
-    });
-})
-
 rooms.post('/exists', (req, res) => {
     let decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
