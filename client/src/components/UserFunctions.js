@@ -133,3 +133,17 @@ export const destroyRoom = (token, id) => {
         console.log(err)
         })
 }
+
+export const checkExistingRoom = (token, id) => {
+    return axios
+        .post('rooms/exists', {
+        id: id
+        }, {headers: { Authorization: `${token}` }})
+        .then(response => {
+        console.log(response)
+        return response
+        })
+        .catch(err => {
+         throw err
+        })
+}

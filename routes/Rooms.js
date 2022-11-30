@@ -122,4 +122,30 @@ rooms.post('/destroy', (req, res) => {
     });
 })
 
+rooms.post('/exists', (req, res) => {
+    let decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
+
+    User.findOne({
+        where: {
+            id: decoded.id
+        }
+    }).then(user => {
+        Room.findOne({
+            where: {
+                id: req.body.id
+            }
+        }).then(room => {
+            if (room) {
+                res.json({exists: true})
+            } else {
+                res.status(400).json({exists: false})
+            }
+        }).catch(err => {
+            res.status(400).json({exists: false})
+        })
+    }).catch(err => {
+        res.status(400).json({error: 'not logged in'})
+    })
+})
+
 module.exports = rooms

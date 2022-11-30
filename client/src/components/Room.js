@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {createRoom, getProfile, joinRoom} from './UserFunctions'
+import {checkExistingRoom, createRoom, getProfile, joinRoom} from './UserFunctions'
 import jwt_decode from "jwt-decode";
 
 class Room extends Component {
@@ -28,13 +28,30 @@ class Room extends Component {
 
     async componentDidMount() {
         const token = localStorage.getItem('usertoken')
-        const room_token = localStorage.getItem('roomtoken')
+        let room_token = localStorage.getItem('roomtoken')
         try {
-        const response = await getProfile(token)
-        if(room_token){
-            this.setState({
-                room_id: jwt_decode(room_token).id,
-            })
+            await getProfile(token);
+            let roomId = null;
+            try {
+                roomId = jwt_decode(room_token).id;
+                console.log(jwt_decode(room_token))
+                if(!roomId) {
+                    throw new Error("No room id")
+                }
+                console.log(roomId)
+                await checkExistingRoom(token, roomId);
+            } catch (e) {
+                roomId = null;
+                room_token = null;
+                localStorage.removeItem('roomtoken')
+                this.setState({
+                    room_id: roomId
+                })
+            }
+            if(room_token){
+                this.setState({
+                    room_id: roomId
+                })
         }} catch (e) {
             this.props.history.push(`/login`)
         }
