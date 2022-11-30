@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { io } from 'socket.io-client';
 import jwt_decode from 'jwt-decode';
 import ReactPlayer from 'react-player';
-import { Link } from 'react-router-dom'
 
-const socket = io('');
 
 class Player extends Component {
+    
     constructor(props) {
         super(props);
         this.state = {
+            socket: io(''),
             room: '',
             name : '',
             currentVideoUrl : 'https://youtu.be/7sDY4m8KNLc',
@@ -17,12 +17,14 @@ class Player extends Component {
             controller : '',
             players: [],
             lastChange : -1,
-            msg: ''
+            msg: '',
+            redirect: false
         };
         this.changeVideo = this.changeVideo.bind(this);
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
         this.sendMsg = this.sendMsg.bind(this);
+        this.leaveRoom = this.leaveRoom.bind(this);
         this.videoUrlRef = element => {
             this.videoUrl = element;
         };
@@ -50,70 +52,72 @@ class Player extends Component {
         var tmpName = decoded.first_name + ' ' + decoded.last_name;
         this.setState({
             name: tmpName,
-            room: 'room1',
+            room: this.props.room_id,
             controller: 'player',
             players: [decoded.first_name+' '+decoded.last_name]
         });
-
-        socket.on('changeVideo', (url) => {
+        this.state.socket.on('connect', () => {
+            this.state.socket.emit('join', this.state.room, this.state.name);
+        });
+        this.state.socket.on('changeVideo', (url) => {
             this.setState({
                 currentVideoUrl : url,
                 playing : true
             });
         });
-        socket.on('play', (time) => {
+        this.state.socket.on('play', (time) => {
             if(this.videoPlayer) this.videoPlayer.seekTo(time);
             this.setState({
                 lastChange : (new Date()).getTime(),
                 playing : true
             });
         });
-        socket.on('pause', (time) => {
+        this.state.socket.on('pause', (time) => {
             if(this.videoPlayer) this.videoPlayer.seekTo(time);
             this.setState({
                 lastChange : (new Date()).getTime(),
                 playing : false
             });
         });
-        socket.on('newPlayer', (player) => {
+        this.state.socket.on('newPlayer', (player) => {
             // add if player is not present
             if(Array.isArray(player)) {
                 this.setState({
                     players: player
                 });
             }
-            else if(this.state.players.indexOf(player) === -1) {
-                this.setState({
-                    players: [...this.state.players, player]
-                });
-            }
-
-            console.log(this.state.players);
+            // console.log(this.state.players);
         });
 
 
-        socket.on('removePlayer', (player) => {
+        this.state.socket.on('removePlayer', (player) => {
             this.setState({
                 players: this.state.players.filter(p => p !== player)
             });
         });
-        socket.on('msg', (message) => {
+        this.state.socket.on('msg', (message) => {
             console.log(message);
             // this.setState({
             //     msg : this.state.msg + message
             // });
             this.chat.innerHTML += message;
         });
-        socket.emit('newPlayer', decoded.first_name+' '+decoded.last_name);
     }
 
+    leaveRoom(e) {
+        e.preventDefault();
+        this.state.socket.emit('leaveRoom', this.state.room);
+        this.state.socket.disconnect();
+        localStorage.removeItem('roomtoken');
+        window.location.href = '/room';
+    }
     onPlay(e) {
         this.setState({
             playing : true
         });
         console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
         if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1000) {
-            socket.emit('play', this.videoPlayer.getCurrentTime());
+            this.state.socket.emit('play', this.videoPlayer.getCurrentTime());
         }
     }
     onPause(e) {
@@ -122,12 +126,12 @@ class Player extends Component {
         });
         console.log(Math.abs((new Date()).getTime() - this.state.lastChange));
         if(Math.abs((new Date()).getTime() - this.state.lastChange) > 1000) {
-            socket.emit('pause', this.videoPlayer.getCurrentTime());
+            this.state.socket.emit('pause', this.videoPlayer.getCurrentTime());
         }
     }
     changeVideo(e) {
         e.preventDefault();
-        socket.emit('changeVideo', this.videoUrl.value);
+        this.state.socket.emit('changeVideo', this.videoUrl.value);
         this.setState({
             currentVideoUrl : this.videoUrl.value,
             playing : true
@@ -138,7 +142,9 @@ class Player extends Component {
     }
     sendMsg(e) {
         e.preventDefault();
-        socket.emit('msg', '<li className="list-group-item">'+ this.state.name+": " + this.msgComp.value + '</li>');
+        var msg_to_send='<li className="list-group-item">'+ this.state.name+": " + this.msgComp.value + '</li>'
+        this.state.socket.emit('msg', msg_to_send);
+        this.chat.innerHTML += msg_to_send;
         this.msgComp.value = '';
     }
     render() {
@@ -151,7 +157,7 @@ class Player extends Component {
                                 <div className="d-inline-block col-md-4"></div>
                                 <h3 className="text-center align-middle col-md-4  d-inline-block">Room: {this.state.room}</h3>
                                 <div className="d-inline-block col-md-4 align-right text-right">
-                                    <Link to={'/'} className="btn btn-danger pull-right " type="button">Leave Room</Link>
+                                    <button className="btn btn-danger pull-right" onClick={this.leaveRoom}>Leave Room</button>
                                 </div>
                                 <h4 className="text-center align-middle col-md-12 d-inline-block">Controller : {this.state.controller}</h4>
                             </div>

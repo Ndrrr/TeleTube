@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import {getProfile} from './UserFunctions'
 import jwt_decode from "jwt-decode";
 
+import Player from "./Player";
+
 let firstNameMsg = '';
 
 let validForm = [true, true, true, true];
@@ -66,7 +68,7 @@ class Room extends Component {
 
     render() {
         const room_player =(
-            <div>Room player with {this.state.room_id}</div>
+            <Player room_id={this.state.room_id}/>
         )
 
         const room_creator = (

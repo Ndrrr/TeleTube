@@ -11,33 +11,55 @@ const port = process.env.PORT || 5000
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-var players = [];
+var map = new Map();
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.on('newPlayer', (player) => {
-        socket.emit('newPlayer', players);
-        if(players.indexOf(player) === -1) {
-            players.push(player);
+    socket.on('join', (room, name) => {
+        socket.join(room);
+        var oldId;
+        map.forEach((value, key) => {
+            if(value === name){
+                oldId = key;
+            }
+        });
+        console.log(oldId);
+        if(!oldId){
+            map.set(socket.id, name);
+        }else{
+            map.delete(oldId);
+            map.set(socket.id, name);
         }
-        console.log(player);
-        socket.broadcast.emit('newPlayer', player);
+        console.log(map);
+        var players = [];
+        map.forEach((value, key) => {
+            players.push(value);
+        });
+        io.to(room).emit('newPlayer', players);
+        console.log('joined room ' + room);
     });
-
     socket.on('disconnect', () => {
-        socket.broadcast.emit('removePlayer', socket.id);
+        socket.broadcast.emit('removePlayer', map.get(socket.id));
     });
     socket.on('changeVideo', (msg) => {
-        socket.broadcast.emit('changeVideo', msg);
+        socket.rooms.forEach(room => {
+            socket.to(room).emit('changeVideo', msg);
+        });
     });
     socket.on('play', (msg) => {
-        socket.broadcast.emit('play', msg);
+        socket.rooms.forEach(room => {
+            socket.to(room).emit('play', msg);
+        });
     });
 
     socket.on('pause', (msg) => {
-        socket.broadcast.emit('pause', msg);
+        socket.rooms.forEach(room => {
+            socket.to(room).emit('pause', msg);
+        });
     });
     socket.on('msg', (msg) => {
-        io.emit('msg', msg);
+        socket.rooms.forEach(room => {
+            socket.to(room).emit('msg', msg);
+        });
     });
 });
 
