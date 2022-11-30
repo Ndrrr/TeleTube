@@ -21,6 +21,10 @@ module.exports = db.sequelize.define(
       password: {
         type: Sequelize.STRING
       },
+      is_active: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       room_id: {
         type: Sequelize.STRING,
           references: {

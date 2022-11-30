@@ -19,6 +19,7 @@ class Register extends Component {
       email: '',
       password: '',
       password_confirm: '',
+      msg: '',
       errors: {},
       refresh: 0
     }
@@ -109,10 +110,13 @@ class Register extends Component {
           console.log(res)
           if(res.data.error === 'User already exists'){
             this.props.history.push('/register?error=User already exists');
+            window.location.reload()
           } else {
-            this.props.history.push(`/login`)
+            this.setState({msg:'User registered check your mail for activation'});
+            setTimeout(() => {
+              this.props.history.push(`/login`)
+            }, 3000);
           }
-          window.location.reload()
           //this.setState({refresh: 1 - this.state.refresh});
         })
     }
@@ -204,6 +208,7 @@ class Register extends Component {
               >
                 Register!
               </button>
+              <span className="text-success">{this.state.msg}</span>
             </form>
             <a href={'/login'}>Already a user?</a>
           </div>

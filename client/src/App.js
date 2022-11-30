@@ -8,8 +8,8 @@ import Register from './components/Register'
 import Profile from './components/Profile'
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
-import Player from "./components/Player";
 import Room from "./components/Room";
+import Activation from "./components/Activation";
 
 class App extends Component {
   render() {
@@ -25,6 +25,7 @@ class App extends Component {
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/reset-password/:token" component={ResetPassword} />
             <Route exact path="/room" component={Room} />
+            <Route exact path="/activate/:token" component={Activation} />
           </div>
         </div>
       </Router>

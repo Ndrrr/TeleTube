@@ -21,7 +21,7 @@ const sendEmail = async (email, subject, text) => {
             text: text,
         });
 
-        console.log("[Email_Client]: email sent sucessfully");
+        console.log("[Email_Client]: email sent sucessfully to " + email);
     } catch (error) {
         console.log(error, "email not sent");
     }
@@ -31,4 +31,8 @@ const buildRecoverUrl = (token) => {
     return `http://${process.env.BASE_URL}/reset-password/${token}`;
 }
 
-module.exports = {sendEmail, buildRecoverUrl};
+const buildActivateUrl = (token) => {
+    return `http://${process.env.BASE_URL}/activate/${token}`;
+}
+
+module.exports = {sendEmail, buildRecoverUrl, buildActivateUrl};

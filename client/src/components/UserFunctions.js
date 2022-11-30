@@ -20,7 +20,7 @@ export const login = user => {
       password: user.password
     })
     .then(response => {
-        if(response.data.error !== 'Invalid credentials'){
+        if(response.data.error !== 'Invalid credentials' && response.data.msg !== 'Please Check your email to activate your account'){
             localStorage.setItem('usertoken', response.data.access_token)
         }
       return response.data
@@ -45,7 +45,7 @@ export const forgotPassword = user => {
 
 export const resetPassword = user => {
     return axios
-        .post(`/users/reset-password/${user.token}`, {
+        .post(`users/reset-password/${user.token}`, {
         email: user.email,
         password: user.password,
         token: user.token
@@ -131,5 +131,17 @@ export const checkExistingRoom = (token, id) => {
         })
         .catch(err => {
          throw err
+        })
+}
+
+export const activateAccount = (token) => {
+    return axios
+        .get(`/users/activate/${token}`)
+        .then(response => {
+        console.log(response)
+        return response
+        })
+        .catch(err => {
+        console.log(err)
         })
 }

@@ -129,7 +129,7 @@ class Room extends Component {
                     </div>
                     <div className="form-group">
                         <label htmlFor="name">Password</label>
-                        <input type="text"
+                        <input type="password"
                                className="form-control"
                                name="room_password_form"
                                placeholder="Room password"

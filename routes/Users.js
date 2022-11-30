@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt')
 const User = require('../models/User')
 const Token = require('../models/Token')
 
-const { sendEmail, buildRecoverUrl } = require('../utils/EmailClient')
+const { sendEmail, buildRecoverUrl, buildActivateUrl } = require('../utils/EmailClient')
 
 users.use(cors())
 
@@ -21,25 +21,46 @@ users.post('/register', (req, res) => {
     password: req.body.password,
     created_at: today
   }
-  console.log(userData)
+  //console.log(userData)
     User.findOne({
     where: {
       email: req.body.email
     }
   }).then(user => {
-    console.log(user)
+    //console.log(user)
+        if(user && user.dataValues.is_active===false) {
+            user.destroy();
+            user=null;
+        }
     if (!user) {
-      console.log('user not found')
+      //console.log('user not found')
       bcrypt.hash(req.body.password, 10, (err, hash) => {
         userData.password = hash
-        console.log("hash: " + hash)
+        //console.log("hash: " + hash)
         User.create(userData)
             .then(user => {
-              res.json({status: user.email + 'Registered!'})
+                console.log(user)
+                let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
+                    expiresIn: 6400
+                })
+                Token.create({
+                    user_id: user.dataValues.id,
+                    token: token,
+                    expires_in: 6400
+                })
+                console.log("token: " + token)
+                let emailText = "Dear " + user.dataValues.first_name + ",\n\nPlease click on the following link to activate your account\n" + buildActivateUrl(token)
+                    + "\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n\n"
+                    + "Sincerely,\nTeletube Team.\n"
+
+                sendEmail(user.dataValues.email, 'Account Activation', emailText)
+
+              res.json({status: user.dataValues.email + 'Successfully registered, please check your email for confirmation.'})
             })
             .catch(err => {
               res.send('error: ' + err)
             })
+
       })
     } else {
       res.json({error: 'User already exists'})
@@ -50,11 +71,15 @@ users.post('/register', (req, res) => {
 users.post('/login', (req, res) => {
   User.findOne({
     where: {
-      email: req.body.email
+      email: req.body.email,
     }
   })
     .then(user => {
       if (user) {
+          if(user.dataValues.is_active===false) {
+                res.json({msg: 'Please Check your email to activate your account'})
+              return;
+          }
         if (bcrypt.compareSync(req.body.password, user.password)) {
           let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
             expiresIn: 12800
@@ -191,6 +216,42 @@ users.post(`/reset-password/:token`, (req, res) => {
         }
     }).catch(err => {
         res.status(200).json({msg: 'Error resetting password, please try again'})
+    })
+})
+
+users.get('/activate/:token', (req, res) => {
+    console.log("token: " + req.params.token)
+    const token = req.params.token
+    const decoded = jwt.verify(token, process.env.SECRET_KEY)
+    Token.findOne({
+        where: {
+            token: token
+        }
+    }).then(token => {
+        if (token) {
+            const user = User.findOne({
+                where: {
+                    id: decoded.id
+                }
+            }).then(user => {
+                if (user) {
+                    user.is_active = true
+                    user.save().then(() => {
+                        Token.destroy({
+                            where: {
+                                token: token.token
+                            }
+                        }).then(() => {
+                            res.status(200).json({msg: 'Account activated successfully'})
+                        }).catch(err => {
+                            res.status(200).json({msg: "Token expired, please try again"})
+                        })
+                    })
+                }
+            })
+        } else {
+            res.status(200).json({msg: "Token expired, please try again"})
+        }
     })
 })
 

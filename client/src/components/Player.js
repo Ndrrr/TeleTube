@@ -81,7 +81,7 @@ class Player extends Component {
         });
         this.state.socket.on('newPlayer', (player) => {
             // add if player is not present
-            if(this.state.lastChange != -1 && Math.abs((new Date()).getTime() - this.state.lastChange) > 1000) {
+            if(this.state.lastChange != -1 && Math.abs((new Date()).getTime() - this.state.lastChange) > 500) {
                 this.state.socket.emit('changeVideo', this.state.currentVideoUrl);
                 this.state.socket.emit('play', this.videoPlayer.getCurrentTime());
             }

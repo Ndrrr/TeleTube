@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import { login } from './UserFunctions'
+import queryString from "query-string";
 
 class Login extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
       email: '',
       password: '',
+      error: '',
       errors: {}
     }
 
@@ -26,13 +28,25 @@ class Login extends Component {
     }
 
     login(user).then(res => {
-      if (res.error !== 'Invalid credentials') {
+    console.log(res)
+      if(res.msg === "Please Check your email to activate your account") {
+        this.setState({error: res.msg})
+      }
+      else if (res.error !== 'Invalid credentials') {
         this.props.history.push(`/profile`)
       } else {
         this.setState({ error : res.error })
       }
       console.log(this.state.error)
     })
+  }
+
+  componentDidMount() {
+    let params = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true });
+    console.log(params)
+    if(params.msg !== undefined){
+        this.setState({['error']: params.msg});
+    }
   }
 
   render() {
@@ -71,7 +85,7 @@ class Login extends Component {
               >
                 Sign in
               </button>
-              <p className={"text-danger mt-2"}>{this.state.error}</p>
+              <p className={"text-warning mt-2"}>{this.state.error}</p>
             </form>
           </div>
         </div>
