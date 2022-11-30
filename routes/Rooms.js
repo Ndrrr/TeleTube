@@ -53,7 +53,7 @@ rooms.post('/create', (req, res) => {
             }
         })
     }).catch(err => {
-        res.send('msg: not logged in')
+        res.status(400).json({error: 'not logged in'})
     })
 })
 
@@ -76,7 +76,7 @@ rooms.post('/join', (req, res) => {
                 let token = jwt.sign(room.dataValues, process.env.SECRET_KEY, {
                     expiresIn: 6400
                 })
-                res.send(token)
+                res.json({room_token: token})
                 } else {
                 res.status(400).json({error: 'Room does not exist'})
                 }
@@ -87,7 +87,7 @@ rooms.post('/join', (req, res) => {
                 res.status(400).json({error: err})
             })
     }).catch(err => {
-        res.json({error: 'not logged in'})
+        res.status(400).json({error: 'not logged in'})
     })
 })
 
