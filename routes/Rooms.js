@@ -25,8 +25,8 @@ rooms.post('/create', (req, res) => {
             id: req.body.id,
             password: req.body.password,
             last_activity: today,
-            is_consistent: req.body.is_consistent,
-            owner_id: req.body.owner_id
+            is_consistent: true,
+            owner_id: decoded.id
         }
         console.log(roomData)
         let room = Room.findOne({
@@ -42,7 +42,7 @@ rooms.post('/create', (req, res) => {
                     console.log("hash: " + hash)
                     Room.create(roomData)
                         .then(room => {
-                            res.json({msg: room.id + ' Created!'})
+                            res.json({room_id: room.id})
                         })
                         .catch(err => {
                             res.send('error: ' + err)
@@ -87,7 +87,7 @@ rooms.post('/join', (req, res) => {
                 res.status(400).json({error: err})
             })
     }).catch(err => {
-        res.send('msg: not logged in')
+        res.json({error: 'not logged in'})
     })
 })
 

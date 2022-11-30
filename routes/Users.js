@@ -57,7 +57,7 @@ users.post('/login', (req, res) => {
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
-            expiresIn: 1440
+            expiresIn: 6400
           })
           res.json({access_token: token})
         } else {
@@ -73,6 +73,7 @@ users.post('/login', (req, res) => {
 })
 
 users.get('/profile', (req, res) => {
+    console.log(req.headers['authorization'])
   var decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY)
 
   User.findOne({
@@ -82,6 +83,7 @@ users.get('/profile', (req, res) => {
   })
     .then(user => {
       if (user) {
+          delete user.password;
           res.json(user)
       } else {
         res.send('User does not exist')

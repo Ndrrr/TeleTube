@@ -9,6 +9,7 @@ import Profile from './components/Profile'
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import Player from "./components/Player";
+import Room from "./components/Room";
 
 class App extends Component {
   render() {
@@ -24,6 +25,7 @@ class App extends Component {
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/reset-password/:token" component={ResetPassword} />
             <Route exact path="/player" component={Player} />
+            <Route exact path="/room" component={Room} />
           </div>
         </div>
       </Router>

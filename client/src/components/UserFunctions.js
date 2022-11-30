@@ -90,3 +90,33 @@ export const updateProfile = (token, user) => {
         console.log(err)
         })
 }
+
+export const joinRoom = (token, id, password) => {
+    return axios
+        .post('rooms/join', {
+        id: id,
+        password: password
+        }, {headers: { Authorization: `${token}` }})
+        .then(response => {
+        console.log(response)
+        return response
+        })
+        .catch(err => {
+        console.log(err)
+        })
+}
+
+export const createRoom = (token, id, password) => {
+    return axios
+        .post('rooms/create', {
+        id: id,
+        password: password
+        }, {headers: { Authorization: `${token}` }})
+        .then(response => {
+        console.log(response)
+        return response
+        })
+        .catch(err => {
+        console.log(err)
+        })
+}
