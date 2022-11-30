@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import {checkExistingRoom, createRoom, getProfile, joinRoom} from './UserFunctions'
 import jwt_decode from "jwt-decode";
 
+import Player from "./Player";
+
 class Room extends Component {
     constructor(props) {
         super(props)
@@ -109,7 +111,7 @@ class Room extends Component {
 
     render() {
         const room_player =(
-            <div>Room player with {this.state.room_id}</div>
+            <Player room_id={this.state.room_id}/>
         )
 
         const room_creator = (
