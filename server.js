@@ -17,28 +17,39 @@ io.on('connection', (socket) => {
     socket.on('join', (room, name) => {
         socket.join(room);
         var oldId;
-        map.forEach((value, key) => {
-            if(value === name){
+        if(!map.has(room)) {
+            map.set(room, new Map());
+        }
+        map.get(room).forEach((value, key) => {
+            if(value == name) {
                 oldId = key;
             }
         });
         console.log(oldId);
         if(!oldId){
-            map.set(socket.id, name);
+            map.get(room).set(socket.id, name);
         }else{
-            map.delete(oldId);
-            map.set(socket.id, name);
+            map.get(room).delete(oldId);
+            map.get(room).set(socket.id, name);
         }
-        console.log(map);
+        // console.log(map);
         var players = [];
-        map.forEach((value, key) => {
+        map.get(room).forEach((value, key) => {
             players.push(value);
         });
         io.to(room).emit('newPlayer', players);
         console.log('joined room ' + room);
     });
-    socket.on('disconnect', () => {
-        socket.broadcast.emit('removePlayer', map.get(socket.id));
+    socket.on('leaveRoom', (room) => {
+        socket.rooms.forEach((value, key) => {
+            io.to(value).emit('removePlayer', map.get(room).get(socket.id));
+            var roomName = value;
+            var roomSize = io.sockets.adapter.rooms.get(roomName).size;
+            if (roomSize === 0) {
+                map.delete(roomName);
+
+            }
+        });
     });
     socket.on('changeVideo', (msg) => {
         socket.rooms.forEach(room => {
